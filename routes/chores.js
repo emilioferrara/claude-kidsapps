@@ -8,7 +8,7 @@ router.get('/', (req, res) => {
     SELECT c.*, f.name as assigned_name, f.color as assigned_color, f.emoji as assigned_emoji
     FROM chores c
     LEFT JOIN family_members f ON c.assigned_to = f.id
-    ORDER BY c.title
+    ORDER BY c.sort_order, c.id
   `);
   res.json(chores);
 });
@@ -24,9 +24,9 @@ router.post('/', (req, res) => {
 
 router.put('/:id', (req, res) => {
   const db = req.app.locals.db;
-  const { title, icon, points, assigned_to, recurrence } = req.body;
-  run(db, 'UPDATE chores SET title=?, icon=?, points=?, assigned_to=?, recurrence=? WHERE id=?',
-    [title, icon, points, assigned_to || null, recurrence || 'daily', parseInt(req.params.id)]);
+  const { title, icon, points, assigned_to, recurrence, sort_order } = req.body;
+  run(db, 'UPDATE chores SET title=?, icon=?, points=?, assigned_to=?, recurrence=?, sort_order=? WHERE id=?',
+    [title, icon, points, assigned_to || null, recurrence || 'daily', sort_order ?? 0, parseInt(req.params.id)]);
   req.app.locals.saveDb();
   res.json({ success: true });
 });

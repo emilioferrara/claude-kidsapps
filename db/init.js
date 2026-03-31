@@ -44,6 +44,7 @@ function initDatabase(db) {
       points INTEGER NOT NULL,
       assigned_to INTEGER,
       recurrence TEXT DEFAULT 'daily',
+      sort_order INTEGER DEFAULT 0,
       created_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (assigned_to) REFERENCES family_members(id)
     );
@@ -88,6 +89,13 @@ function initDatabase(db) {
   if (!colNames.includes('updated_at')) {
     db.run("ALTER TABLE events ADD COLUMN updated_at TEXT");
     db.run("UPDATE events SET updated_at = created_at WHERE updated_at IS NULL");
+  }
+
+  // Add sort_order to chores
+  const choreCols = db.exec('PRAGMA table_info(chores)');
+  const choreColNames = choreCols.length ? choreCols[0].values.map(r => r[1]) : [];
+  if (!choreColNames.includes('sort_order')) {
+    db.run('ALTER TABLE chores ADD COLUMN sort_order INTEGER DEFAULT 0');
   }
 
   // Migrate existing single member_id data to event_members junction table
