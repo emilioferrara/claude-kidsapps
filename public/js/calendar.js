@@ -56,15 +56,12 @@ const Calendar = {
     const month = this.currentDate.getMonth();
     const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
 
-    // Update title
     const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
       'July', 'August', 'September', 'October', 'November', 'December'];
     document.getElementById('cal-month-title').textContent = `${monthNames[month]} ${year}`;
 
-    // Fetch events
     this.events = await API.get(`/events?month=${monthStr}`);
 
-    // Build calendar grid
     const firstDay = new Date(year, month, 1).getDay();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const daysInPrev = new Date(year, month, 0).getDate();
@@ -73,27 +70,28 @@ const Calendar = {
 
     let html = '';
 
-    // Previous month days
     for (let i = firstDay - 1; i >= 0; i--) {
       const day = daysInPrev - i;
       html += `<div class="cal-day other-month"><span class="cal-day-number">${day}</span></div>`;
     }
 
-    // Current month days
     for (let day = 1; day <= daysInMonth; day++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
       const isToday = dateStr === todayStr;
       const isSelected = dateStr === this.selectedDate;
       const dayEvents = this.events.filter(e => e.date === dateStr);
 
-      // Filter by selected family member
       const filteredEvents = App.selectedMemberId
-        ? dayEvents.filter(e => e.member_id === App.selectedMemberId || !e.member_id)
+        ? dayEvents.filter(e => !e.member_ids || e.member_ids.length === 0 || e.member_ids.includes(App.selectedMemberId))
         : dayEvents;
 
-      const dots = filteredEvents.map(e => {
-        const color = e.member_color || 'var(--accent)';
-        return `<span class="cal-dot" style="background:${color}"></span>`;
+      const dots = filteredEvents.flatMap(e => {
+        if (!e.members || e.members.length === 0) {
+          return [`<span class="cal-dot" style="background:var(--accent)"></span>`];
+        }
+        return [e.members[0]].map(m =>
+          `<span class="cal-dot" style="background:${m.color}"></span>`
+        );
       }).join('');
 
       const classes = ['cal-day'];
@@ -107,7 +105,6 @@ const Calendar = {
         </div>`;
     }
 
-    // Next month days
     const totalCells = firstDay + daysInMonth;
     const remaining = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
     for (let i = 1; i <= remaining; i++) {
@@ -116,7 +113,6 @@ const Calendar = {
 
     document.getElementById('cal-grid').innerHTML = html;
 
-    // Day click handlers
     document.querySelectorAll('.cal-day:not(.other-month)').forEach(el => {
       el.addEventListener('click', () => {
         this.selectedDate = el.dataset.date;
@@ -125,7 +121,6 @@ const Calendar = {
       });
     });
 
-    // Re-show detail if date selected
     if (this.selectedDate) {
       this.showDetail(this.selectedDate);
     }
@@ -141,7 +136,7 @@ const Calendar = {
 
     const dayEvents = this.events.filter(e => e.date === dateStr);
     const filtered = App.selectedMemberId
-      ? dayEvents.filter(e => e.member_id === App.selectedMemberId || !e.member_id)
+      ? dayEvents.filter(e => !e.member_ids || e.member_ids.length === 0 || e.member_ids.includes(App.selectedMemberId))
       : dayEvents;
 
     const container = document.getElementById('day-detail-events');
@@ -154,20 +149,27 @@ const Calendar = {
       return;
     }
 
-    container.innerHTML = filtered.map(e => `
-      <div class="event-card" style="--event-color: ${e.member_color || 'var(--accent)'}">
-        <span class="event-icon">${e.icon || '📅'}</span>
-        <div class="event-info">
-          <div class="event-title">${escapeHtml(e.title)}</div>
-          ${e.start_time ? `<div class="event-time">${formatTime(e.start_time)}${e.end_time ? ' - ' + formatTime(e.end_time) : ''}</div>` : ''}
-          ${e.member_name ? `<div class="event-member">${e.member_emoji} ${e.member_name}</div>` : '<div class="event-member">👨‍👩‍👧‍👦 Everyone</div>'}
+    container.innerHTML = filtered.map(e => {
+      const memberDisplay = e.members && e.members.length > 0
+        ? e.members.map(m => `${m.emoji} ${m.name}`).join(', ')
+        : '👨‍👩‍👧‍👦 Everyone';
+      const eventColor = e.members && e.members.length > 0 ? e.members[0].color : 'var(--accent)';
+
+      return `
+        <div class="event-card" style="--event-color: ${eventColor}">
+          <span class="event-icon">${e.icon || '📅'}</span>
+          <div class="event-info">
+            <div class="event-title">${escapeHtml(e.title)}</div>
+            ${e.start_time ? `<div class="event-time">${formatTime(e.start_time)}${e.end_time ? ' - ' + formatTime(e.end_time) : ''}</div>` : ''}
+            <div class="event-member">${memberDisplay}</div>
+          </div>
+          <div class="event-actions">
+            <button class="event-action-btn" onclick="editEvent(${e.id})" title="Edit">✏️</button>
+            <button class="event-action-btn" onclick="deleteEvent(${e.id})" title="Delete">🗑️</button>
+          </div>
         </div>
-        <div class="event-actions">
-          <button class="event-action-btn" onclick="editEvent(${e.id})" title="Edit">✏️</button>
-          <button class="event-action-btn" onclick="deleteEvent(${e.id})" title="Delete">🗑️</button>
-        </div>
-      </div>
-    `).join('');
+      `;
+    }).join('');
   },
 
   closeDetail() {
@@ -191,23 +193,17 @@ function openEventModal(date) {
   Calendar.selectedEventIcon = '📅';
   document.getElementById('event-icon-picker-btn').textContent = '📅';
 
-  // Build member select
+  // Build multi-select member picker
   const select = document.getElementById('event-member-select');
-  select.innerHTML = `
-    <div class="member-option selected" data-id="" style="--option-color: var(--accent)">
-      <span>👨‍👩‍👧‍👦</span> Everyone
+  select.innerHTML = App.familyMembers.map(m => `
+    <div class="member-option" data-id="${m.id}" style="--option-color: ${m.color}">
+      <span>${m.emoji}</span> ${m.name}
     </div>
-    ${App.familyMembers.map(m => `
-      <div class="member-option" data-id="${m.id}" style="--option-color: ${m.color}">
-        <span>${m.emoji}</span> ${m.name}
-      </div>
-    `).join('')}
-  `;
+  `).join('') + `<div class="member-select-hint">No selection = Everyone</div>`;
 
   select.querySelectorAll('.member-option').forEach(opt => {
     opt.addEventListener('click', () => {
-      select.querySelectorAll('.member-option').forEach(o => o.classList.remove('selected'));
-      opt.classList.add('selected');
+      opt.classList.toggle('selected');
     });
   });
 
@@ -221,14 +217,15 @@ function openEventModal(date) {
   document.getElementById('event-form').onsubmit = async (e) => {
     e.preventDefault();
     const eventId = document.getElementById('event-id').value;
-    const selectedMember = select.querySelector('.member-option.selected');
+    const selectedMembers = [...select.querySelectorAll('.member-option.selected')]
+      .map(el => parseInt(el.dataset.id));
     const data = {
       title: document.getElementById('event-title').value,
       icon: Calendar.selectedEventIcon,
       date: document.getElementById('event-date').value,
       start_time: document.getElementById('event-start').value || null,
       end_time: document.getElementById('event-end').value || null,
-      member_id: selectedMember.dataset.id ? parseInt(selectedMember.dataset.id) : null,
+      member_ids: selectedMembers,
       recurrence: document.getElementById('event-recurrence').value || null
     };
 
@@ -262,11 +259,13 @@ async function editEvent(id) {
   Calendar.selectedEventIcon = event.icon || '📅';
   document.getElementById('event-icon-picker-btn').textContent = Calendar.selectedEventIcon;
 
-  // Select member
-  const memberId = event.member_id ? String(event.member_id) : '';
+  // Select members
+  const memberIds = (event.member_ids || []).map(String);
   const select = document.getElementById('event-member-select');
   select.querySelectorAll('.member-option').forEach(o => {
-    o.classList.toggle('selected', o.dataset.id === memberId);
+    if (memberIds.includes(o.dataset.id)) {
+      o.classList.add('selected');
+    }
   });
 }
 

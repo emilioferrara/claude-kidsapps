@@ -384,6 +384,13 @@ body {
   background: color-mix(in srgb, var(--option-color) 12%, white);
 }
 
+.member-select-hint {
+  width: 100%;
+  font-size: 0.7rem;
+  color: var(--text-light);
+  padding-top: 4px;
+}
+
 /* === Emoji Picker === */
 .emoji-picker {
   position: fixed;

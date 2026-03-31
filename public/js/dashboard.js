@@ -30,7 +30,7 @@ const Dashboard = {
           <div class="widget-event-title">${escapeHtml(e.title)}</div>
           <div class="widget-event-time">
             ${e.start_time ? formatTime(e.start_time) : 'All day'}
-            ${e.member_name ? ` · ${e.member_emoji} ${e.member_name}` : ''}
+            ${e.members && e.members.length > 0 ? ` · ${e.members.map(m => m.emoji + ' ' + m.name).join(', ')}` : ''}
           </div>
         </div>
       </div>

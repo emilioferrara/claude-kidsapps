@@ -3,8 +3,8 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   const { lat, lon } = req.query;
-  const latitude = lat || '40.71';   // Default NYC
-  const longitude = lon || '-74.01';
+  const latitude = lat || '34.05';   // Default Los Angeles
+  const longitude = lon || '-118.24';
 
   try {
     const url = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&timezone=auto&forecast_days=4`;

@@ -1,4 +1,10 @@
 /* === Calendar === */
+#view-calendar {
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
 .calendar-header {
   display: flex;
   align-items: center;
@@ -15,7 +21,7 @@
 .cal-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
   margin-bottom: 8px;
   padding: 0 2px;
 }
@@ -35,8 +41,6 @@
   grid-template-columns: repeat(7, 1fr);
   gap: 3px;
   padding: 0 2px;
-  max-width: 500px;
-  margin: 0 auto;
 }
 
 .cal-day {

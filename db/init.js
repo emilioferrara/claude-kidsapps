@@ -29,6 +29,14 @@ function initDatabase(db) {
       FOREIGN KEY (member_id) REFERENCES family_members(id)
     );
 
+    CREATE TABLE IF NOT EXISTS event_members (
+      event_id INTEGER NOT NULL,
+      member_id INTEGER NOT NULL,
+      PRIMARY KEY (event_id, member_id),
+      FOREIGN KEY (event_id) REFERENCES events(id) ON DELETE CASCADE,
+      FOREIGN KEY (member_id) REFERENCES family_members(id)
+    );
+
     CREATE TABLE IF NOT EXISTS chores (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
@@ -80,6 +88,15 @@ function initDatabase(db) {
   if (!colNames.includes('updated_at')) {
     db.run("ALTER TABLE events ADD COLUMN updated_at TEXT");
     db.run("UPDATE events SET updated_at = created_at WHERE updated_at IS NULL");
+  }
+
+  // Migrate existing single member_id data to event_members junction table
+  const emTable = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name='event_members'");
+  if (emTable.length > 0) {
+    const emCount = db.exec('SELECT COUNT(*) FROM event_members');
+    if (emCount[0].values[0][0] === 0) {
+      db.run('INSERT INTO event_members (event_id, member_id) SELECT id, member_id FROM events WHERE member_id IS NOT NULL');
+    }
   }
 
   // Seed data only if tables are empty
