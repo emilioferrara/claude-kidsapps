@@ -13,11 +13,11 @@ const Calendar = {
 
   bindEvents() {
     document.getElementById('cal-prev').addEventListener('click', () => {
-      this.currentDate.setMonth(this.currentDate.getMonth() - 1);
+      this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() - 1, 1);
       this.render();
     });
     document.getElementById('cal-next').addEventListener('click', () => {
-      this.currentDate.setMonth(this.currentDate.getMonth() + 1);
+      this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + 1, 1);
       this.render();
     });
     document.getElementById('day-detail-close').addEventListener('click', () => {
@@ -34,11 +34,8 @@ const Calendar = {
     grid.addEventListener('touchend', e => {
       const diff = e.changedTouches[0].clientX - touchStartX;
       if (Math.abs(diff) > 80) {
-        if (diff > 0) {
-          this.currentDate.setMonth(this.currentDate.getMonth() - 1);
-        } else {
-          this.currentDate.setMonth(this.currentDate.getMonth() + 1);
-        }
+        const delta = diff > 0 ? -1 : 1;
+        this.currentDate = new Date(this.currentDate.getFullYear(), this.currentDate.getMonth() + delta, 1);
         this.render();
       }
     }, { passive: true });
