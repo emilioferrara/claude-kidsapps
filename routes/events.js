@@ -11,16 +11,62 @@ router.get('/', (req, res) => {
     FROM events e
     LEFT JOIN family_members f ON e.member_id = f.id`;
 
-  let events;
+  const allEvents = queryAll(db, `${baseQuery} ORDER BY e.date, e.start_time`);
+
+  let rangeStart, rangeEnd;
   if (date) {
-    events = queryAll(db, `${baseQuery} WHERE e.date = ? ORDER BY e.start_time`, [date]);
+    rangeStart = date;
+    rangeEnd = date;
   } else if (month) {
-    events = queryAll(db, `${baseQuery} WHERE e.date LIKE ? ORDER BY e.date, e.start_time`, [`${month}%`]);
+    const [y, m] = month.split('-').map(Number);
+    rangeStart = `${y}-${String(m).padStart(2, '0')}-01`;
+    const lastDay = new Date(y, m, 0).getDate();
+    rangeEnd = `${y}-${String(m).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
   } else {
-    events = queryAll(db, `${baseQuery} ORDER BY e.date DESC, e.start_time LIMIT 100`);
+    res.json(allEvents.filter(e => !e.recurrence).slice(0, 100));
+    return;
   }
-  res.json(events);
+
+  const results = [];
+  for (const event of allEvents) {
+    if (!event.recurrence) {
+      if (event.date >= rangeStart && event.date <= rangeEnd) {
+        results.push(event);
+      }
+      continue;
+    }
+    // Expand recurring events into the requested range
+    const eventDate = new Date(event.date + 'T12:00:00');
+    const start = new Date(rangeStart + 'T12:00:00');
+    const end = new Date(rangeEnd + 'T12:00:00');
+
+    let cursor = new Date(eventDate);
+    // Advance cursor to start of range
+    while (cursor < start) {
+      advanceCursor(cursor, event.recurrence);
+    }
+    // Generate occurrences within range
+    while (cursor <= end) {
+      const dateStr = cursor.toISOString().split('T')[0];
+      if (dateStr >= event.date) {
+        results.push({ ...event, date: dateStr });
+      }
+      advanceCursor(cursor, event.recurrence);
+    }
+  }
+
+  results.sort((a, b) => (a.date + (a.start_time || '')) > (b.date + (b.start_time || '')) ? 1 : -1);
+  res.json(results);
 });
+
+function advanceCursor(cursor, recurrence) {
+  switch (recurrence) {
+    case 'daily': cursor.setDate(cursor.getDate() + 1); break;
+    case 'weekly': cursor.setDate(cursor.getDate() + 7); break;
+    case 'monthly': cursor.setMonth(cursor.getMonth() + 1); break;
+    default: cursor.setFullYear(9999); // stop
+  }
+}
 
 router.post('/', (req, res) => {
   const db = req.app.locals.db;

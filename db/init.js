@@ -74,6 +74,7 @@ function initDatabase(db) {
   const count = result[0].values[0][0];
   if (count === 0) {
     db.run('INSERT INTO family_members (name, color, emoji, role) VALUES (?, ?, ?, ?)', ['Emilio', '#6C5CE7', '🧔', 'parent']);
+    db.run('INSERT INTO family_members (name, color, emoji, role) VALUES (?, ?, ?, ?)', ['Nozomi', '#E84393', '👩', 'parent']);
     db.run('INSERT INTO family_members (name, color, emoji, role) VALUES (?, ?, ?, ?)', ['Noemi', '#FF6B6B', '🐡', 'kid']);
     db.run('INSERT INTO family_members (name, color, emoji, role) VALUES (?, ?, ?, ?)', ['Leo', '#00B894', '🦖', 'kid']);
 
