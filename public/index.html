@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#6C5CE7">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/calendar.css">
+  <link rel="stylesheet" href="/css/chores.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <title>Family Calendar</title>
+</head>
+<body>
+  <!-- Family member selector bar -->
+  <header id="family-bar">
+    <div id="family-members"></div>
+    <div id="current-date-display"></div>
+  </header>
+
+  <!-- Main views -->
+  <main id="app">
+    <!-- Calendar View -->
+    <section id="view-calendar" class="view active">
+      <div class="calendar-header">
+        <button id="cal-prev" class="nav-btn" aria-label="Previous month">&#8249;</button>
+        <h2 id="cal-month-title"></h2>
+        <button id="cal-next" class="nav-btn" aria-label="Next month">&#8250;</button>
+      </div>
+      <div id="cal-weekdays" class="cal-weekdays"></div>
+      <div id="cal-grid" class="cal-grid"></div>
+
+      <!-- Day detail panel -->
+      <div id="day-detail" class="day-detail hidden">
+        <div class="day-detail-header">
+          <h3 id="day-detail-title"></h3>
+          <button id="day-detail-close" class="close-btn">&times;</button>
+        </div>
+        <div id="day-detail-events"></div>
+        <button id="add-event-btn" class="fab-btn">+ Add Event</button>
+      </div>
+    </section>
+
+    <!-- Chores View -->
+    <section id="view-chores" class="view">
+      <div class="chores-header">
+        <h2>Today's Chores</h2>
+        <div id="chore-member-tabs" class="member-tabs"></div>
+      </div>
+      <div id="chores-progress"></div>
+      <div id="chores-list"></div>
+      <div id="points-display"></div>
+      <div id="rewards-section">
+        <h3>Rewards</h3>
+        <div id="rewards-list"></div>
+      </div>
+    </section>
+
+    <!-- Dashboard View -->
+    <section id="view-dashboard" class="view">
+      <div class="dashboard-grid">
+        <div class="widget" id="widget-today">
+          <h3>Today's Schedule</h3>
+          <div id="widget-today-content"></div>
+        </div>
+        <div class="widget" id="widget-chore-progress">
+          <h3>Chore Progress</h3>
+          <div id="widget-chore-content"></div>
+        </div>
+        <div class="widget" id="widget-weather">
+          <h3>Weather</h3>
+          <div id="widget-weather-content"></div>
+        </div>
+        <div class="widget" id="widget-points">
+          <h3>Points Leaderboard</h3>
+          <div id="widget-points-content"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Event Modal -->
+  <div id="event-modal" class="modal hidden">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="event-modal-title">Add Event</h3>
+        <button class="close-btn" onclick="closeEventModal()">&times;</button>
+      </div>
+      <form id="event-form">
+        <input type="hidden" id="event-id">
+        <div class="form-group">
+          <label>What's happening?</label>
+          <div class="input-with-emoji">
+            <button type="button" id="event-icon-picker-btn" class="emoji-picker-btn">📅</button>
+            <input type="text" id="event-title" placeholder="e.g. Soccer practice" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Date</label>
+          <input type="date" id="event-date" required>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Start time</label>
+            <input type="time" id="event-start">
+          </div>
+          <div class="form-group">
+            <label>End time</label>
+            <input type="time" id="event-end">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Who?</label>
+          <div id="event-member-select" class="member-select"></div>
+        </div>
+        <div class="form-group">
+          <label>Repeats</label>
+          <select id="event-recurrence">
+            <option value="">Never</option>
+            <option value="daily">Daily</option>
+            <option value="weekly">Weekly</option>
+            <option value="monthly">Monthly</option>
+          </select>
+        </div>
+        <div class="form-actions">
+          <button type="button" class="btn btn-secondary" onclick="closeEventModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Emoji Picker -->
+  <div id="emoji-picker" class="emoji-picker hidden">
+    <div class="emoji-grid"></div>
+  </div>
+
+  <!-- Confetti canvas for celebrations -->
+  <canvas id="confetti-canvas"></canvas>
+
+  <!-- Bottom Navigation -->
+  <nav id="bottom-nav">
+    <button class="nav-tab active" data-view="calendar">
+      <span class="nav-icon">📅</span>
+      <span class="nav-label">Calendar</span>
+    </button>
+    <button class="nav-tab" data-view="chores">
+      <span class="nav-icon">⭐</span>
+      <span class="nav-label">Chores</span>
+    </button>
+    <button class="nav-tab" data-view="dashboard">
+      <span class="nav-icon">🏠</span>
+      <span class="nav-label">Home</span>
+    </button>
+  </nav>
+
+  <script src="/js/api.js"></script>
+  <script src="/js/calendar.js"></script>
+  <script src="/js/chores.js"></script>
+  <script src="/js/dashboard.js"></script>
+  <script src="/js/app.js"></script>
+</body>
+</html>

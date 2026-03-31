@@ -1,0 +1,200 @@
+/* === Dashboard === */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.widget {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  box-shadow: var(--shadow);
+}
+
+.widget h3 {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 14px;
+}
+
+/* === Today's Schedule Widget === */
+.widget-event {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bg-soft);
+}
+
+.widget-event:last-child {
+  border-bottom: none;
+}
+
+.widget-event-icon {
+  font-size: 1.3rem;
+}
+
+.widget-event-info {
+  flex: 1;
+}
+
+.widget-event-title {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.widget-event-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.widget-empty {
+  text-align: center;
+  padding: 16px;
+  color: var(--text-light);
+  font-size: 0.85rem;
+}
+
+.widget-empty-icon {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 6px;
+}
+
+/* === Chore Progress Widget === */
+.widget-member-progress {
+  margin-bottom: 14px;
+}
+
+.widget-member-progress:last-child {
+  margin-bottom: 0;
+}
+
+.widget-member-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.widget-progress-bar {
+  height: 10px;
+  background: var(--bg-soft);
+  border-radius: 5px;
+  overflow: hidden;
+}
+
+.widget-progress-fill {
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
+
+.widget-progress-text {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+}
+
+/* === Weather Widget === */
+.weather-current {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.weather-temp {
+  font-size: 2.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.weather-icon {
+  font-size: 2.5rem;
+}
+
+.weather-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.weather-forecast {
+  display: flex;
+  gap: 8px;
+}
+
+.forecast-day {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  background: var(--bg-soft);
+  border-radius: var(--radius-sm);
+}
+
+.forecast-label {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.forecast-icon {
+  font-size: 1.3rem;
+  margin: 4px 0;
+  display: block;
+}
+
+.forecast-temps {
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+
+.forecast-temps .low {
+  color: var(--text-muted);
+}
+
+/* === Points Leaderboard Widget === */
+.leaderboard-entry {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--bg-soft);
+}
+
+.leaderboard-entry:last-child {
+  border-bottom: none;
+}
+
+.leaderboard-emoji {
+  font-size: 1.5rem;
+}
+
+.leaderboard-info {
+  flex: 1;
+}
+
+.leaderboard-name {
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.leaderboard-points {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* === Responsive === */
+@media (max-width: 600px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}

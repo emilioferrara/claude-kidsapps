@@ -1,0 +1,14 @@
+{
+  "name": "family-calendar",
+  "version": "1.0.0",
+  "description": "Kids family calendar app inspired by Apolosign",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "sql.js": "^1.11.0"
+  }
+}

@@ -1,0 +1,201 @@
+/* === Calendar === */
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 0 4px;
+}
+
+.calendar-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.cal-weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  margin-bottom: 8px;
+  padding: 0 2px;
+}
+
+.cal-weekday {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 8px 0;
+}
+
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+  padding: 0 2px;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 8px 4px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  background: var(--bg);
+  min-height: 72px;
+  position: relative;
+}
+
+.cal-day:hover {
+  background: var(--bg-hover);
+  transform: scale(1.02);
+}
+
+.cal-day.other-month {
+  opacity: 0.3;
+}
+
+.cal-day.today {
+  background: color-mix(in srgb, var(--accent) 8%, white);
+  box-shadow: inset 0 0 0 2px var(--accent);
+}
+
+.cal-day.selected {
+  background: var(--accent);
+  color: white;
+}
+
+.cal-day.selected .cal-day-number {
+  color: white;
+}
+
+.cal-day-number {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.cal-day.today .cal-day-number {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.cal-day-dots {
+  display: flex;
+  gap: 3px;
+  flex-wrap: wrap;
+  justify-content: center;
+  max-width: 100%;
+}
+
+.cal-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* === Day Detail Panel === */
+.day-detail {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  margin-top: 16px;
+  box-shadow: var(--shadow);
+  animation: slideUp 0.3s ease;
+}
+
+.day-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.day-detail-header h3 {
+  font-size: 1.1rem;
+}
+
+.event-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-soft);
+  margin-bottom: 8px;
+  border-left: 4px solid var(--event-color, var(--accent));
+  transition: all 0.15s;
+}
+
+.event-card:hover {
+  background: var(--bg-hover);
+}
+
+.event-icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.event-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.event-title {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.event-time {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.event-member {
+  font-size: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.event-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.event-action-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 4px;
+  border-radius: var(--radius-xs);
+  opacity: 0.5;
+  transition: all 0.15s;
+}
+
+.event-action-btn:hover {
+  opacity: 1;
+  background: var(--bg-hover);
+}
+
+.no-events {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+.no-events .empty-icon {
+  font-size: 2.5rem;
+  margin-bottom: 8px;
+  display: block;
+}

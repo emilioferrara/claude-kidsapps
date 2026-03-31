@@ -1,0 +1,274 @@
+/* === Chores View === */
+.chores-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.chores-header h2 {
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+/* === Progress Bar === */
+#chores-progress {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+  margin-bottom: 16px;
+  box-shadow: var(--shadow);
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.progress-count {
+  color: var(--text-muted);
+}
+
+.progress-bar {
+  height: 12px;
+  background: var(--bg-soft);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.5s ease;
+  background: var(--accent);
+}
+
+.progress-complete {
+  text-align: center;
+  padding: 8px 0 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  animation: popIn 0.4s ease;
+}
+
+/* === Chore Cards === */
+#chores-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 24px;
+}
+
+.chore-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: var(--bg);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.chore-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.chore-card:active {
+  transform: scale(0.98);
+}
+
+.chore-card.completed {
+  opacity: 0.6;
+  background: var(--bg-soft);
+}
+
+.chore-card.completed .chore-icon {
+  position: relative;
+}
+
+.chore-card.completed .chore-title {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+.chore-card.completing {
+  animation: bounce 0.4s ease;
+}
+
+.chore-icon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.chore-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.chore-title {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.chore-points-badge {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+}
+
+.chore-check {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 3px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  font-size: 1rem;
+}
+
+.chore-card.completed .chore-check {
+  border-color: #00B894;
+  background: #00B894;
+  color: white;
+}
+
+/* === Points Display === */
+#points-display {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 20px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  margin-bottom: 24px;
+}
+
+.points-value {
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.points-value.animating {
+  animation: sparkle 0.5s ease;
+}
+
+.points-label {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.streak-display {
+  margin-top: 12px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.streak-fire {
+  animation: sparkle 1s ease infinite;
+  display: inline-block;
+}
+
+/* === Rewards === */
+#rewards-section {
+  margin-bottom: 24px;
+}
+
+#rewards-section h3 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+
+#rewards-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: 10px;
+}
+
+.reward-card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-align: center;
+  box-shadow: var(--shadow);
+  cursor: pointer;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.reward-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.reward-card.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.reward-icon {
+  font-size: 2rem;
+  margin-bottom: 6px;
+}
+
+.reward-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.reward-cost {
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+/* === Celebration Overlay === */
+.celebration {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 500;
+  pointer-events: none;
+}
+
+.celebration-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--accent);
+  animation: popIn 0.5s ease, fadeOut 0.5s ease 1s forwards;
+}
+
+@keyframes fadeOut {
+  to { opacity: 0; transform: translateY(-20px); }
+}
