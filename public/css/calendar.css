@@ -27,14 +27,16 @@
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.05em;
-  padding: 8px 0;
+  padding: 4px 0;
 }
 
 .cal-grid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 4px;
+  gap: 3px;
   padding: 0 2px;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .cal-day {
@@ -43,12 +45,12 @@
   flex-direction: column;
   align-items: center;
   justify-content: flex-start;
-  padding: 8px 4px;
+  padding: 4px 2px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
   background: var(--bg);
-  min-height: 72px;
+  min-height: 44px;
   position: relative;
 }
 
@@ -79,7 +81,7 @@
   font-size: 0.9rem;
   font-weight: 600;
   color: var(--text);
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .cal-day.today .cal-day-number {
