@@ -72,8 +72,15 @@ function initDatabase(db) {
   `);
 
   // Migrations for existing databases
-  try { db.run('ALTER TABLE events ADD COLUMN google_event_id TEXT'); } catch (e) { /* already exists */ }
-  try { db.run('ALTER TABLE events ADD COLUMN updated_at TEXT DEFAULT (datetime(\'now\'))'); } catch (e) { /* already exists */ }
+  const existingCols = db.exec('PRAGMA table_info(events)');
+  const colNames = existingCols.length ? existingCols[0].values.map(r => r[1]) : [];
+  if (!colNames.includes('google_event_id')) {
+    db.run('ALTER TABLE events ADD COLUMN google_event_id TEXT');
+  }
+  if (!colNames.includes('updated_at')) {
+    db.run("ALTER TABLE events ADD COLUMN updated_at TEXT");
+    db.run("UPDATE events SET updated_at = created_at WHERE updated_at IS NULL");
+  }
 
   // Seed data only if tables are empty
   const result = db.exec('SELECT COUNT(*) as c FROM family_members');
