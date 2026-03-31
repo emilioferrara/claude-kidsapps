@@ -15,9 +15,9 @@ router.get('/', (req, res) => {
 
 router.post('/', (req, res) => {
   const db = req.app.locals.db;
-  const { title, icon, points, assigned_to, recurrence } = req.body;
-  const result = run(db, 'INSERT INTO chores (title, icon, points, assigned_to, recurrence) VALUES (?, ?, ?, ?, ?)',
-    [title, icon, points, assigned_to || null, recurrence || 'daily']);
+  const { title, icon, points, assigned_to, recurrence, sort_order } = req.body;
+  const result = run(db, 'INSERT INTO chores (title, icon, points, assigned_to, recurrence, sort_order) VALUES (?, ?, ?, ?, ?, ?)',
+    [title, icon, points, assigned_to || null, recurrence || 'daily', sort_order ?? 0]);
   req.app.locals.saveDb();
   res.json({ id: result.lastInsertRowid, ...req.body });
 });
