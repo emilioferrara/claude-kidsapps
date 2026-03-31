@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const { queryAll, run } = require('../db/helpers');
+const { queryAll, queryOne, run } = require('../db/helpers');
+const gcal = require('../lib/gcal');
 
 router.get('/', (req, res) => {
   const db = req.app.locals.db;
@@ -68,30 +69,55 @@ function advanceCursor(cursor, recurrence) {
   }
 }
 
-router.post('/', (req, res) => {
+router.post('/', async (req, res) => {
   const db = req.app.locals.db;
   const { title, icon, date, start_time, end_time, member_id, recurrence, notes } = req.body;
   const result = run(db, `
-    INSERT INTO events (title, icon, date, start_time, end_time, member_id, recurrence, notes)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+    INSERT INTO events (title, icon, date, start_time, end_time, member_id, recurrence, notes, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))`,
     [title, icon || null, date, start_time || null, end_time || null, member_id || null, recurrence || null, notes || null]);
   req.app.locals.saveDb();
-  res.json({ id: result.lastInsertRowid, ...req.body });
+
+  const newEvent = { id: result.lastInsertRowid, ...req.body };
+
+  // Push to Google Calendar (async, don't block response)
+  gcal.pushEvent(newEvent).then(googleId => {
+    if (googleId) {
+      db.run('UPDATE events SET google_event_id = ? WHERE id = ?', [googleId, newEvent.id]);
+      req.app.locals.saveDb();
+    }
+  }).catch(err => console.error('[gcal] push error:', err.message));
+
+  res.json(newEvent);
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', async (req, res) => {
   const db = req.app.locals.db;
   const { title, icon, date, start_time, end_time, member_id, recurrence, notes } = req.body;
-  run(db, `UPDATE events SET title=?, icon=?, date=?, start_time=?, end_time=?, member_id=?, recurrence=?, notes=? WHERE id=?`,
+  const existing = queryOne(db, 'SELECT google_event_id FROM events WHERE id = ?', [parseInt(req.params.id)]);
+  run(db, `UPDATE events SET title=?, icon=?, date=?, start_time=?, end_time=?, member_id=?, recurrence=?, notes=?, updated_at=datetime('now') WHERE id=?`,
     [title, icon || null, date, start_time || null, end_time || null, member_id || null, recurrence || null, notes || null, parseInt(req.params.id)]);
   req.app.locals.saveDb();
+
+  // Update on Google Calendar
+  if (existing && existing.google_event_id) {
+    gcal.updateEvent(existing.google_event_id, req.body).catch(err => console.error('[gcal] update error:', err.message));
+  }
+
   res.json({ success: true });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', async (req, res) => {
   const db = req.app.locals.db;
+  const existing = queryOne(db, 'SELECT google_event_id FROM events WHERE id = ?', [parseInt(req.params.id)]);
   run(db, 'DELETE FROM events WHERE id = ?', [parseInt(req.params.id)]);
   req.app.locals.saveDb();
+
+  // Delete from Google Calendar
+  if (existing && existing.google_event_id) {
+    gcal.deleteEvent(existing.google_event_id).catch(err => console.error('[gcal] delete error:', err.message));
+  }
+
   res.json({ success: true });
 });
 

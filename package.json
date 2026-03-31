@@ -9,6 +9,7 @@
   },
   "dependencies": {
     "express": "^4.21.0",
+    "googleapis": "^171.4.0",
     "sql.js": "^1.11.0"
   }
 }

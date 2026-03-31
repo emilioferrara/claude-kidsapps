@@ -23,7 +23,9 @@ function initDatabase(db) {
       member_id INTEGER,
       recurrence TEXT,
       notes TEXT,
+      google_event_id TEXT,
       created_at TEXT DEFAULT (datetime('now')),
+      updated_at TEXT DEFAULT (datetime('now')),
       FOREIGN KEY (member_id) REFERENCES family_members(id)
     );
 
@@ -68,6 +70,10 @@ function initDatabase(db) {
       FOREIGN KEY (member_id) REFERENCES family_members(id)
     );
   `);
+
+  // Migrations for existing databases
+  try { db.run('ALTER TABLE events ADD COLUMN google_event_id TEXT'); } catch (e) { /* already exists */ }
+  try { db.run('ALTER TABLE events ADD COLUMN updated_at TEXT DEFAULT (datetime(\'now\'))'); } catch (e) { /* already exists */ }
 
   // Seed data only if tables are empty
   const result = db.exec('SELECT COUNT(*) as c FROM family_members');

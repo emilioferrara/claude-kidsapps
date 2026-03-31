@@ -3,6 +3,7 @@ const path = require('path');
 const fs = require('fs');
 const initSqlJs = require('sql.js');
 const { initDatabase } = require('./db/init');
+const gcal = require('./lib/gcal');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -36,6 +37,17 @@ async function start() {
   app.use('/api/events', require('./routes/events'));
   app.use('/api/chores', require('./routes/chores'));
   app.use('/api/weather', require('./routes/weather'));
+  app.use('/auth', require('./routes/auth'));
+
+  // Google Calendar sync every 5 minutes
+  if (gcal.isAuthed()) {
+    console.log('Google Calendar connected — starting sync');
+    const runSync = () => gcal.syncFromGoogle(db, () => saveDb(db)).catch(err => console.error('[gcal] sync error:', err.message));
+    runSync(); // initial sync on startup
+    setInterval(runSync, 5 * 60 * 1000);
+  } else {
+    console.log('Google Calendar not connected — visit /auth/google to connect');
+  }
 
   // SPA fallback
   app.get('*', (req, res) => {
