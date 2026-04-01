@@ -58,13 +58,13 @@ router.get('/status', (req, res) => {
 // Complete a chore
 router.post('/:id/complete', (req, res) => {
   const db = req.app.locals.db;
-  const { member_id } = req.body;
+  const { member_id, date } = req.body;
   const choreId = parseInt(req.params.id);
   const chore = queryOne(db, 'SELECT * FROM chores WHERE id = ?', [choreId]);
 
   if (!chore) return res.status(404).json({ error: 'Chore not found' });
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = date || new Date().toISOString().split('T')[0];
 
   const existing = queryOne(db,
     'SELECT * FROM chore_completions WHERE chore_id = ? AND member_id = ? AND completed_date = ?',
@@ -91,9 +91,9 @@ router.post('/:id/complete', (req, res) => {
 // Uncomplete a chore
 router.post('/:id/uncomplete', (req, res) => {
   const db = req.app.locals.db;
-  const { member_id } = req.body;
+  const { member_id, date } = req.body;
   const choreId = parseInt(req.params.id);
-  const today = new Date().toISOString().split('T')[0];
+  const today = date || new Date().toISOString().split('T')[0];
 
   const completion = queryOne(db,
     'SELECT * FROM chore_completions WHERE chore_id = ? AND member_id = ? AND completed_date = ?',

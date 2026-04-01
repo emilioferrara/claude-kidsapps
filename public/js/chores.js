@@ -1,3 +1,9 @@
+// Helper: get local date as YYYY-MM-DD (not UTC)
+function localToday() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 // Chores module
 const Chores = {
   chores: [],
@@ -15,7 +21,7 @@ const Chores = {
   async loadData() {
     [this.chores, this.completions, this.rewards] = await Promise.all([
       API.get('/chores'),
-      API.get('/chores/status?date=' + new Date().toISOString().split('T')[0]),
+      API.get('/chores/status?date=' + localToday()),
       API.get('/chores/rewards')
     ]);
 
@@ -157,11 +163,11 @@ const Chores = {
     const done = this.isCompleted(choreId);
 
     if (done) {
-      await API.post(`/chores/${choreId}/uncomplete`, { member_id: this.selectedKidId });
+      await API.post(`/chores/${choreId}/uncomplete`, { member_id: this.selectedKidId, date: localToday() });
     } else {
       // Animate
       card.classList.add('completing');
-      const result = await API.post(`/chores/${choreId}/complete`, { member_id: this.selectedKidId });
+      const result = await API.post(`/chores/${choreId}/complete`, { member_id: this.selectedKidId, date: localToday() });
 
       if (result.error) {
         card.classList.remove('completing');

@@ -10,7 +10,8 @@ const Dashboard = {
   },
 
   async renderToday() {
-    const today = new Date().toISOString().split('T')[0];
+    const d = new Date();
+    const today = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const events = await API.get(`/events?date=${today}`);
     const container = document.getElementById('widget-today-content');
 
@@ -41,8 +42,9 @@ const Dashboard = {
     const container = document.getElementById('widget-chore-content');
     const kids = App.familyMembers.filter(m => m.role === 'kid');
     const chores = await API.get('/chores');
-    const today = new Date().toISOString().split('T')[0];
-    const completions = await API.get(`/chores/status?date=${today}`);
+    const dd = new Date();
+    const choreToday = `${dd.getFullYear()}-${String(dd.getMonth()+1).padStart(2,'0')}-${String(dd.getDate()).padStart(2,'0')}`;
+    const completions = await API.get(`/chores/status?date=${choreToday}`);
 
     container.innerHTML = kids.map(kid => {
       const kidChores = chores.filter(c => !c.assigned_to || c.assigned_to === kid.id);
