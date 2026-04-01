@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#6C5CE7">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <title>Family Calendar</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #F8F9FA;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100dvh;
+    }
+    .login-card {
+      background: white;
+      border-radius: 16px;
+      padding: 40px 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      text-align: center;
+      max-width: 340px;
+      width: 100%;
+    }
+    .login-emoji { font-size: 3rem; margin-bottom: 12px; }
+    h1 { font-size: 1.3rem; margin-bottom: 4px; color: #2D3436; }
+    p { font-size: 0.8rem; color: #636E72; margin-bottom: 24px; }
+    input {
+      width: 100%;
+      padding: 14px;
+      border: 2px solid #E8E8E8;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.1rem;
+      text-align: center;
+      letter-spacing: 0.2em;
+      transition: border-color 0.2s;
+    }
+    input:focus { outline: none; border-color: #6C5CE7; }
+    button {
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      background: #6C5CE7;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.2s;
+    }
+    button:hover { opacity: 0.9; }
+    .error { color: #FF6B6B; font-size: 0.8rem; margin-top: 12px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div class="login-emoji">👨‍👩‍👧‍👦</div>
+    <h1>Family Calendar</h1>
+    <p>Enter the family PIN</p>
+    <form id="login-form">
+      <input type="password" id="pin" placeholder="PIN" autocomplete="off" autofocus>
+      <button type="submit">Enter</button>
+      <div class="error" id="error">Wrong PIN, try again</div>
+    </form>
+  </div>
+  <script>
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const pin = document.getElementById('pin').value;
+      const res = await fetch('/auth/pin', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pin })
+      });
+      if (res.ok) {
+        window.location.href = '/';
+      } else {
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('pin').value = '';
+        document.getElementById('pin').focus();
+      }
+    });
+  </script>
+</body>
+</html>
