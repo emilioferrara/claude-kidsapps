@@ -2,6 +2,18 @@ const express = require('express');
 const router = express.Router();
 const { queryAll, queryOne, run } = require('../db/helpers');
 
+// "Today" in Pacific time as YYYY-MM-DD — daily reset happens at midnight PT
+function pacificToday() {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'America/Los_Angeles',
+    year: 'numeric', month: '2-digit', day: '2-digit'
+  }).formatToParts(new Date());
+  const y = parts.find(p => p.type === 'year').value;
+  const m = parts.find(p => p.type === 'month').value;
+  const d = parts.find(p => p.type === 'day').value;
+  return `${y}-${m}-${d}`;
+}
+
 router.get('/', (req, res) => {
   const db = req.app.locals.db;
   const chores = queryAll(db, `
@@ -43,7 +55,7 @@ router.delete('/:id', (req, res) => {
 router.get('/status', (req, res) => {
   const db = req.app.locals.db;
   const { date } = req.query;
-  const today = date || new Date().toISOString().split('T')[0];
+  const today = date || pacificToday();
 
   const completions = queryAll(db, `
     SELECT cc.*, c.title, c.icon, f.name as member_name, f.color as member_color
@@ -64,7 +76,7 @@ router.post('/:id/complete', (req, res) => {
 
   if (!chore) return res.status(404).json({ error: 'Chore not found' });
 
-  const today = date || new Date().toISOString().split('T')[0];
+  const today = date || pacificToday();
 
   const existing = queryOne(db,
     'SELECT * FROM chore_completions WHERE chore_id = ? AND member_id = ? AND completed_date = ?',
@@ -93,7 +105,7 @@ router.post('/:id/uncomplete', (req, res) => {
   const db = req.app.locals.db;
   const { member_id, date } = req.body;
   const choreId = parseInt(req.params.id);
-  const today = date || new Date().toISOString().split('T')[0];
+  const today = date || pacificToday();
 
   const completion = queryOne(db,
     'SELECT * FROM chore_completions WHERE chore_id = ? AND member_id = ? AND completed_date = ?',
@@ -133,11 +145,15 @@ router.get('/points/:memberId', (req, res) => {
     WHERE member_id = ? ORDER BY completed_date DESC
   `, [memberId]).map(r => r.completed_date);
 
-  const today = new Date();
+  // Walk back day-by-day in Pacific time
+  const todayStr = pacificToday();
+  const [ty, tm, td] = todayStr.split('-').map(Number);
+  const anchor = new Date(Date.UTC(ty, tm - 1, td));
   for (let i = 0; i < dates.length; i++) {
-    const expected = new Date(today);
-    expected.setDate(expected.getDate() - i);
-    if (dates[i] === expected.toISOString().split('T')[0]) {
+    const expected = new Date(anchor);
+    expected.setUTCDate(expected.getUTCDate() - i);
+    const expectedStr = expected.toISOString().split('T')[0];
+    if (dates[i] === expectedStr) {
       streak++;
     } else {
       break;
@@ -173,7 +189,7 @@ router.post('/rewards/:id/redeem', (req, res) => {
   if (!member) return res.status(404).json({ error: 'Member not found' });
   if (member.total_points < reward.cost) return res.status(400).json({ error: 'Not enough points' });
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = pacificToday();
   run(db, 'INSERT INTO reward_redemptions (reward_id, member_id, redeemed_date, points_spent) VALUES (?, ?, ?, ?)',
     [rewardId, member_id, today, reward.cost]);
 
